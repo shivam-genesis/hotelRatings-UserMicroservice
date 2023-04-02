@@ -4,6 +4,7 @@ server:
 spring:
   application:
     name: USER-SERVICE
+  
   datasource:
     name: userMicroservice
     url: jdbc:mysql://localhost:3306/userMicroservice
@@ -23,10 +24,7 @@ spring:
       
   config:
     import: configserver:http://localhost:8085
-   
-#  profiles:
-#    active: prod
-      
+         
 #eureka:
 #  instance:
 #    prefer-ip-address: true
