@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.microserviceUser.dto.UserDTO;
 import com.microserviceUser.entity.Hotel;
 import com.microserviceUser.entity.Rating;
 import com.microserviceUser.entity.User;
@@ -20,6 +22,9 @@ import com.microserviceUser.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+	@Autowired
+	private ModelMapper modelMapper;
 
 	@Autowired
 	private UserRepository userRepo;
@@ -36,7 +41,8 @@ public class UserServiceImpl implements UserService {
 //	private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
-	public User createUser(User user) throws RuntimeException {
+	public UserDTO createUser(UserDTO userDTO) throws RuntimeException {
+		User user = this.userDTOToUser(userDTO);
 		Optional<User> u = this.userRepo.findById(user.getUserId());
 		if (!u.isEmpty()) {
 			throw new AlreadyExistException("User", user.getUserId());
@@ -51,11 +57,11 @@ public class UserServiceImpl implements UserService {
 		}
 
 		User createdUser = this.userRepo.save(user);
-		return createdUser;
+		return this.userToUserDTO(createdUser);
 	}
 
 	@Override
-	public User getUserById(String userId) {
+	public UserDTO getUserById(String userId) {
 		if (Integer.parseInt(userId) == 0) {
 			throw new ValidationException("UserId", "0");
 		}
@@ -77,15 +83,18 @@ public class UserServiceImpl implements UserService {
 			r.setHotel(hotel);
 			return r;
 		}).collect(Collectors.toList());
-		user.setRatings(ratingList);
+		UserDTO u = this.userToUserDTO(user);
+		u.setRatings(ratingList);
 
-		return user;
+		return u;
 	}
 
 	@Override
-	public List<User> getAllUser() {
+	public List<UserDTO> getAllUser() {
 		List<User> users = this.userRepo.findAll();
-		for (User u : users) {
+		List<UserDTO> userDTOS = users.stream().map(user -> this.userToUserDTO(user)).collect(Collectors.toList());
+		
+		for (UserDTO u : userDTOS) {
 			List<Rating> ratings = ratingService.getRatingsByUser(u.getUserId());
 			List<Rating> ratingsWithHotels = ratings.stream().map(r -> {
 				Hotel hotel = hotelService.getHotelById(r.getHotelId());
@@ -97,34 +106,55 @@ public class UserServiceImpl implements UserService {
 		if (users.isEmpty()) {
 			throw new ResourceNotFoundException("Users");
 		}
-		return users;
+
+		return userDTOS;
 	}
 
 	@Override
-	public User updateUserName(String userId, String userName) {
+	public UserDTO updateUserName(String userId, String userName) {
 		if (userName.length() < 3) {
 			throw new ValidationException("UserName", "2");
 		}
 		User user = this.userRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User", "UserId", userId));
 		user.setUserName(userName);
-		return this.userRepo.save(user);
+		return this.userToUserDTO(this.userRepo.save(user));
 	}
 
 	@Override
-	public User updateUserEmail(String userId, String userEmail) {
+	public UserDTO updateUserEmail(String userId, String userEmail) {
 		if (userEmail.length() < 8) {
 			throw new ValidationException("UserEmail", "7");
 		}
 		User user = this.userRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User", "UserId", userId));
 		user.setUserEmail(userEmail);
-		return this.userRepo.save(user);
+		return this.userToUserDTO(this.userRepo.save(user));
 	}
 
 	@Override
 	public void deleteUser(String userId) {
 		this.userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "UserId", userId));
 		this.userRepo.deleteById(userId);
+	}
+
+	public User userDTOToUser(UserDTO userDTO) {
+		User user = this.modelMapper.map(userDTO, User.class);
+//		user.setId(userDTO.getId());
+//		user.setName(userDTO.getName());
+//		user.setEmail(userDTO.getEmail());
+//		user.setPassword(userDTO.getPassword());
+//		user.setAbout(userDTO.getAbout());
+		return user;
+	}
+
+	public UserDTO userToUserDTO(User user) {
+		UserDTO userDTO = this.modelMapper.map(user, UserDTO.class);
+//		userDTO.setId(user.getId());
+//		userDTO.setName(user.getName());
+//		userDTO.setEmail(user.getEmail());
+//		userDTO.setPassword(user.getPassword());
+//		userDTO.setAbout(user.getAbout());
+		return userDTO;
 	}
 }

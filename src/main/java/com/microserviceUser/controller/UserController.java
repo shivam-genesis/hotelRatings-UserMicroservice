@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.microserviceUser.entity.User;
+import com.microserviceUser.dto.UserDTO;
 import com.microserviceUser.exceptions.ApiResponse;
 import com.microserviceUser.service.UserService;
 
@@ -25,33 +25,33 @@ public class UserController {
 	private UserService userService;
 
 	@PostMapping("/user")
-	public ResponseEntity<User> createUser(@RequestBody User user) {
-		User u = this.userService.createUser(user);
-		return new ResponseEntity<User>(u, HttpStatus.OK);
+	public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+		UserDTO u = this.userService.createUser(userDTO);
+		return new ResponseEntity<UserDTO>(u, HttpStatus.OK);
 	}
 
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<User> getUserById(@PathVariable String userId) {
-		User u = this.userService.getUserById(userId);
-		return new ResponseEntity<User>(u, HttpStatus.OK);
+	public ResponseEntity<UserDTO> getUserById(@PathVariable String userId) {
+		UserDTO u = this.userService.getUserById(userId);
+		return new ResponseEntity<UserDTO>(u, HttpStatus.OK);
 	}
 
 	@GetMapping("/users")
-	public ResponseEntity<List<User>> getAllUsers() {
-		List<User> users = this.userService.getAllUser();
-		return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+	public ResponseEntity<List<UserDTO>> getAllUsers() {
+		List<UserDTO> users = this.userService.getAllUser();
+		return new ResponseEntity<List<UserDTO>>(users, HttpStatus.OK);
 	}
 
 	@PutMapping("/user/{userId}/username")
-	public ResponseEntity<User> updateUserName(@PathVariable String userId, @RequestParam String userName) {
-		User u = this.userService.updateUserName(userId, userName);
-		return new ResponseEntity<User>(u, HttpStatus.OK);
+	public ResponseEntity<UserDTO> updateUserName(@PathVariable String userId, @RequestParam String userName) {
+		UserDTO u = this.userService.updateUserName(userId, userName);
+		return new ResponseEntity<UserDTO>(u, HttpStatus.OK);
 	}
 
 	@PutMapping("/user/{userId}/useremail")
-	public ResponseEntity<User> updateUserEmail(@PathVariable String userId, @RequestParam String userEmail) {
-		User u = this.userService.updateUserEmail(userId, userEmail);
-		return new ResponseEntity<User>(u, HttpStatus.OK);
+	public ResponseEntity<UserDTO> updateUserEmail(@PathVariable String userId, @RequestParam String userEmail) {
+		UserDTO u = this.userService.updateUserEmail(userId, userEmail);
+		return new ResponseEntity<UserDTO>(u, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/user/{userId}")

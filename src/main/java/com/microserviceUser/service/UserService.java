@@ -2,18 +2,18 @@ package com.microserviceUser.service;
 
 import java.util.List;
 
-import com.microserviceUser.entity.User;
+import com.microserviceUser.dto.UserDTO;
 
 public interface UserService {
-	User createUser(User user);
+	UserDTO createUser(UserDTO userDTO);
 
-	User getUserById(String userId);
+	UserDTO getUserById(String userId);
 
-	List<User> getAllUser();
+	List<UserDTO> getAllUser();
 
-	User updateUserName(String userId, String userName);
+	UserDTO updateUserName(String userId, String userName);
 
-	User updateUserEmail(String userId, String userEmail);
+	UserDTO updateUserEmail(String userId, String userEmail);
 
 	void deleteUser(String userId);
 }
